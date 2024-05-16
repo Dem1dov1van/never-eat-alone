@@ -188,9 +188,16 @@ const findPair = (location, time) => {
         time
     }}).then(data => {
         if(data.length > 1) {
-            data.forEach((user, i) => {
-                anotherUser = data[(i+1 > data.length - 1) ? 0 : i + 1].telegramUsername
-                console.log(anotherUser)
+            data.forEach( async(user, i) => {
+                anotherUser = data[i === 0 ? 1 : 0].telegramUsername
+                await prisma.user.update({
+                    where: {
+                        id: user.id
+                    },
+                    data: {
+                        isMatched: true
+                    }
+                })
                 setTimeout(() => {
                     bot.sendMessage(user.id, `Ура! Я нашел тебе пару. И это: @${anotherUser}, ваш обед пройдет в ${locationToName[user.location]} в ${getHumanTime(user.time)}.\n\nНе опаздывай!`, {parse_mode: "HTML"}) 
                 }, 5000) 
